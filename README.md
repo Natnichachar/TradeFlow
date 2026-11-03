@@ -1,70 +1,79 @@
 # TradeFlow — AI Trade Log Assistant
 
-A local operations workspace for Orchid Desk, a fictional Thai equities desk. Paste a desk message, inspect the proposed fields, then approve a versioned SQLite change. Try the entire workflow without an API key.
+TradeFlow helps a fictional Thai equities desk turn informal trade messages into records that a person can review, approve, and trace back to the original instruction.
 
-![TradeFlow dashboard after approving and correcting T104](dashboard.jpg)
+I built this portfolio project as a third-year Information and Communication Engineering student interested in trading operations, data intelligence, and financial product design. I wanted to answer a practical question: **when a trader corrects a price, how can the desk update its figures and still explain what changed?**
 
-## Start in demo mode
+## One trade, two approvals
 
-Tested on Windows with Python 3.12. From the extracted project directory in PowerShell:
+A trader sends this message:
+
+> Trade T104: bought 100 shares of SAMPLE_A at THB 25.50 on 2026-11-03.
+
+TradeFlow prepares a purchase worth **THB 2,550.00**. The reviewer checks the symbol, quantity, price, and date before approving it. Later, a second message arrives:
+
+> Correct T104: the price should be THB 25.75.
+
+The assistant finds T104 and shows the original and proposed prices side by side. Once the reviewer approves the correction, the trade is worth **THB 2,575.00**. The dashboard’s gross traded value increases by **THB 25.00**, while the trade count stays at seven. The record history preserves both messages and their approval timestamps.
+
+![TradeFlow dashboard showing seven approved trades and THB 21,746.00 in gross traded value](dashboard.jpg)
+
+*The dashboard shows the six sample trades plus T104 after its correction. Gross traded value measures the value of trading activity across buys and sells.*
+
+## What the project demonstrates
+
+| Area | Example from the application |
+|---|---|
+| **Trading operations** | Two trades can have identical details and both be legitimate. TradeFlow flags the match for review. Reusing an existing trade reference for a new entry blocks approval. |
+| **Data intelligence** | Prices are stored in whole satang, the smallest unit of Thai baht. Dashboard totals use the latest approved version of each trade, and each correction can be traced to its source message. |
+| **Product design** | If a trader writes “Sold 200 shares of SAMPLE_B today,” the assistant asks for the missing price and currency. The trader can reply “THB 19.80” and confirm the Bangkok date without retyping the original ticket. |
+| **AI tool use** | In live mode, the model can look up trades, search for a correction target, prepare a proposal, or ask for clarification. Python validates the proposal, and the reviewer decides whether to save it. |
+
+## What I verified
+
+- **18 automated tests passed.** These include repeated approval clicks, an attempt to overwrite a newer correction, and a failed audit write that requires the whole trade update to roll back.
+- **21 synthetic messages were evaluated in the key-free demo.** The demo matched the expected action, clarification decision, tool sequence, and validation outcome on all 21 messages. It also matched all 78 labeled fields. [View the evaluation results](evaluation/demo_results.json).
+- **The live API integration was tested with simulated responses.** The tests covered tool calls, malformed output, API failures, and the five-call limit. Accuracy on free-form messages from a live model has not been measured.
+
+<details>
+<summary><strong>Try the two-minute demo</strong></summary>
+
+After starting the app, select **Load demo data** to add six trades across four fictional symbols.
+
+1. **Book a trade.** In **Trade Assistant**, select **New trade** and prepare T104. Check the proposed value of THB 2,550.00, then approve it.
+2. **Correct the price.** Select **Correction** and compare THB 25.50 with THB 25.75. Approve the change, open **Trade Records**, and search for T104 to see both approvals.
+3. **Try an exception.** Select **Duplicate** to see the warning, then discard the ticket. Select **Missing price** and reply `THB 19.80` to complete the proposal.
+4. **Check the dashboard.** Leave the last proposal pending. The review queue shows the unfinished ticket, while the activity charts include only approved trades.
+
+</details>
+
+<details>
+<summary><strong>Setup and technical details</strong></summary>
+
+**Stack:** Python, Streamlit, SQLite, pandas, Plotly, and the OpenAI Python SDK. The default demo runs locally without an API key and understands the sample English sentence patterns.
+
+With Python 3.12 installed and available as `python`, run these commands from the repository folder in Windows PowerShell:
 
 ```powershell
-py -3.12 -m venv .venv
+python --version
+python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Open the local URL printed by Streamlit, usually http://localhost:8501. On macOS/Linux, use `python3.12 -m venv .venv` and substitute `.venv/bin/python` in the next two commands. Demo mode needs no .env file.
+Open the local URL printed in the terminal. On macOS or Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the install and launch commands.
 
-Select **Load demo data** to add six trades across four fictional symbols and one historical price correction. Loading again skips existing references. The database starts empty and lives at `data/tradeflow.sqlite3`; set `TRADEFLOW_DB` to use another ledger. Duplicate attempts and incomplete messages are available as sample tickets rather than booked trades.
+**How it works.** The [interface](app.py) handles intake, review, record search, CSV export, and reporting. The [agent](agent.py) and [demo interpreter](demo.py) use the same lookup and proposal tools. The [ledger](ledger.py) saves each approved change and its audit entry in one SQLite transaction. A version check prevents an older proposal from overwriting a newer correction.
 
-## How the pieces fit
+**Run the checks** using the project’s Python environment:
 
-| File | Responsibility |
-|---|---|
-| `app.py` | Four Streamlit views, explicit user actions, session-local review state, filtered CSV export and Plotly charts. |
-| `agent.py` | Five strict function schemas, source-evidence checks, candidate lookup and a bounded Responses API loop. Lookup results feed the next model turn. Preparation and clarification terminate it. |
-| `demo.py` | Small English template interpreter and reproducible seed trades. Both interpreters call the same read/prepare tools. |
-| `ledger.py` | Two SQLite tables, parameterized queries, deterministic field validation and transaction handling. |
-| `evaluate.py`, `evaluation/`, `tests/` | Independent expected labels, measured results, regression tests and mock SDK integration. |
-
-Approved trades have a numeric internal ID, optional unique external reference, current economic fields, original source, UTC timestamps and a version. Prices use integer satang. Python multiplies satang by whole shares and sums in integer arithmetic. Gross traded value measures turnover. Each record contributes once at its currently approved price and quantity.
-
-Approval takes a SQLite write lock, rechecks references, economic duplicates, target version and warning acknowledgement, then writes the trade and its audit snapshot in one transaction. The unique proposal token makes repeated approval idempotent. A correction retains the original intake text in the trade row and records the correction message alongside full before/after snapshots in the audit table.
-
-The dashboard queue covers the pending ticket in the current browser session. Approved records survive application restarts. A lost session drops its unapproved draft.
-
-## Optional live mode
-
-Copy `.env.example` to `.env`, set `TRADEFLOW_MODE=live`, supply your own `OPENAI_API_KEY`, and restart Streamlit. `OPENAI_MODEL` defaults to `gpt-4.1-mini`; choose an accessible model supporting Responses function calling. Each explicit prepare or clarification submission may make up to five paid requests. Startup, navigation, approval and ordinary reruns never invoke the API. Synthetic ticket text and matching trade fields are sent to the configured model.
-
-The integration uses the official Python SDK, strict function arguments, one tool call per round and structured results joined by call ID. A malformed response, API error or exhausted budget leaves the ledger untouched. [Official OpenAI function-calling documentation](https://developers.openai.com/api/docs/guides/function-calling)
-
-## Verification and evaluation
-
-Run these with the project environment's Python from this directory:
-
-```text
-python -m unittest discover -s tests -v
-python evaluate.py
-python evaluate.py --live
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe evaluate.py
 ```
 
-The first two commands are offline. The third explicitly starts a paid evaluation and requires a configured key. Both evaluation modes use a temporary seeded database, the same 21 labeled tickets and a fixed Bangkok date of 2026-11-03. Neither changes the application ledger. Detailed outcomes go to `evaluation/demo_results.json` or `evaluation/live_results.json` and the workflow view reads those reports.
+**Optional live mode.** Copy `.env.example` to `.env`, set `TRADEFLOW_MODE=live`, add your `OPENAI_API_KEY`, and restart the app. Each explicit message submission can make up to five API calls. To run a paid evaluation on the synthetic cases, use `evaluate.py --live`.
 
-| Measured deterministic metric | Correct / scored |
-|---|---:|
-| Action classification | 21 / 21 |
-| Labeled field extraction | 78 / 78 |
-| Clarification required vs. proceed | 21 / 21 |
-| Ordered tool sequence | 21 / 21 |
-| Validation outcome | 21 / 21 |
+**Scope.** The prototype uses four fictional THB equities, a local SQLite database, and one pending ticket per browser session. It records synthetic trades and has no brokerage connection or order execution.
 
-Field extraction compares the explicitly labeled fields in each case, including optional references. Validation distinguishes clean, warning, blocked, blocked with warning, and clarification. API failures count as failures in the live scoring. These fixtures reuse the demo sentence patterns. **Live evaluation: not run.** The installed SDK was exercised against an in-process mock HTTP service for tool-result round trips, invalid JSON, service failures and the iteration bound.
-
-## Scope and limitations
-
-- Demo mode handles the sample sentence patterns and short clarification replies. Use live mode to try arbitrary messages. Model interpretation can still be wrong, so inspect every proposed field.
-- Four fictional THB symbols, whole-share quantities up to one billion and prices below THB one billion with at most two decimals. Reference-free corrections require a unique candidate. Duplicate detection compares date, symbol, side, quantity and price exactly.
-- This is a single-desk portfolio prototype with local SQLite storage. It has no authentication, brokerage connection, market-data feed or order execution. Live model availability, latency and real-world extraction quality have not been measured.
-
+</details>
