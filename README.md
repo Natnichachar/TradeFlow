@@ -18,18 +18,6 @@ Open the local URL printed by Streamlit, usually http://localhost:8501. On macOS
 
 Select **Load demo data** to add six trades across four fictional symbols and one historical price correction. Loading again skips existing references. The database starts empty and lives at `data/tradeflow.sqlite3`; set `TRADEFLOW_DB` to use another ledger. Duplicate attempts and incomplete messages are available as sample tickets rather than booked trades.
 
-## Two-minute interview walkthrough
-
-| Time | Show | Talk track |
-|---|---|---|
-| 0:00–0:20 | Load demo data. Open **Trade Assistant → New trade → Prepare proposal**. | “This fictional desk receives unstructured messages. Here T104 is the desk’s reference. Python checks the date, quantity and price. One hundred shares at THB 25.50 gives THB 2,550.00.” |
-| 0:20–0:45 | Approve T104. Select **Correction**, then prepare it. | “The assistant looks up T104 and shows the old and proposed price. Approval checks the version again so another reviewer’s edit can’t be overwritten.” |
-| 0:45–1:05 | Approve the correction. Search T104 in **Trade Records** and expand its history. | “The internal ID stays fixed. Both approvals have their source message and timestamp. The new price is THB 25.75, and gross activity increases by THB 25.” |
-| 1:05–1:30 | Prepare **Duplicate**, show the acknowledgement gate, discard it. Prepare **Missing price**, reply `THB 19.80`. | “An identical execution can be legitimate, so it merits review. A missing price requires clarification. The original sell instruction stays attached, and today resolves to the Bangkok date.” |
-| 1:30–2:00 | Leave that ticket pending. Open **Dashboard**, then **Workflow & Evaluation**. | “Approved activity and unfinished work are counted separately. Demo results come from repeatable templates. The live path uses the same Python tools, and I show its evaluation separately.” |
-
-Use a fresh database path for a repeat presentation if T104 is already booked. The **Ambiguous** sample matches multiple SAMPLE_A records. Reply with a listed external reference to select a target.
-
 ## How the pieces fit
 
 | File | Responsibility |
@@ -79,7 +67,4 @@ Field extraction compares the explicitly labeled fields in each case, including 
 - Demo mode handles the sample sentence patterns and short clarification replies. Use live mode to try arbitrary messages. Model interpretation can still be wrong, so inspect every proposed field.
 - Four fictional THB symbols, whole-share quantities up to one billion and prices below THB one billion with at most two decimals. Reference-free corrections require a unique candidate. Duplicate detection compares date, symbol, side, quantity and price exactly.
 - This is a single-desk portfolio prototype with local SQLite storage. It has no authentication, brokerage connection, market-data feed or order execution. Live model availability, latency and real-world extraction quality have not been measured.
-
-**Resume bullet**  
-Built a Python/Streamlit trade-log assistant with approval-gated SQLite updates, versioned correction history and a Plotly activity dashboard; verified deterministic handling of 21 synthetic trade messages.
 
