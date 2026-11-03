@@ -1,0 +1,286 @@
+[
+  {
+    "message": "Trade T104: bought 100 shares of SAMPLE_A at THB 25.50 on 2026-11-03.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 100,
+      "price": "25.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Sold 35 shares of SAMPLE_D at THB 8.10 today.",
+    "action": "new",
+    "fields": {
+      "ref": null,
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_D",
+      "side": "SELL",
+      "quantity": 35,
+      "price": "8.10",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Trade R03: bought 1 share of SAMPLE_C at THB 0.01 on 2024-02-29.",
+    "action": "new",
+    "fields": {
+      "ref": "R03",
+      "trade_date": "2024-02-29",
+      "symbol": "SAMPLE_C",
+      "side": "BUY",
+      "quantity": 1,
+      "price": "0.01",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Correct T100: the price should be THB 25.75.",
+    "action": "correct",
+    "fields": {
+      "ref": "T100",
+      "price": "25.75",
+      "quantity": 120
+    },
+    "tools": [
+      "find_trade",
+      "prepare_correction"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Correct T102: use 180 shares.",
+    "action": "correct",
+    "fields": {
+      "ref": "T102",
+      "quantity": 180,
+      "price": "19.80"
+    },
+    "tools": [
+      "find_trade",
+      "prepare_correction"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Correct SAMPLE_D: the price should be THB 32.45.",
+    "action": "correct",
+    "fields": {
+      "ref": "T105",
+      "price": "32.45"
+    },
+    "tools": [
+      "search_candidates",
+      "prepare_correction"
+    ],
+    "status": "clean"
+  },
+  {
+    "message": "Correct SAMPLE_A: the price should be THB 26.00.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "search_candidates"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Correct T999: the price should be THB 26.00.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "find_trade"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Sold 200 shares of SAMPLE_B today.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Bought shares of SAMPLE_C at THB 18.50 today.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Bought 20 shares at THB 18.50 today.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Sold 5 shares of SAMPLE_D at THB 10.50.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Please sort this out.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Correct T100 please.",
+    "action": "clarify",
+    "fields": {},
+    "tools": [
+      "find_trade",
+      "request_clarification"
+    ],
+    "status": "clarify"
+  },
+  {
+    "message": "Trade D901: bought 120 shares of SAMPLE_A at THB 24.50 on 2026-10-26.",
+    "action": "new",
+    "fields": {
+      "ref": "D901",
+      "trade_date": "2026-10-26",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 120,
+      "price": "24.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "warning"
+  },
+  {
+    "message": "Trade T100: bought 120 shares of SAMPLE_A at THB 24.50 on 2026-10-26.",
+    "action": "new",
+    "fields": {
+      "ref": "T100",
+      "trade_date": "2026-10-26",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 120,
+      "price": "24.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked+warning"
+  },
+  {
+    "message": "Trade T104: bought 100 shares of SAMPLE_A at THB 25.555 on 2026-11-03.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 100,
+      "price": "25.555",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked"
+  },
+  {
+    "message": "Trade T104: bought 0 shares of SAMPLE_A at THB 25.50 on 2026-11-03.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 0,
+      "price": "25.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked"
+  },
+  {
+    "message": "Trade T104: bought 100 shares of SAMPLE_A at USD 25.50 on 2026-11-03.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 100,
+      "price": "25.50",
+      "currency": "USD"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked"
+  },
+  {
+    "message": "Trade T104: bought 100 shares of SAMPLE_A at THB 25.50 on 2026-02-30.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-02-30",
+      "symbol": "SAMPLE_A",
+      "side": "BUY",
+      "quantity": 100,
+      "price": "25.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked"
+  },
+  {
+    "message": "Trade T104: bought 100 shares of SAMPLE_Z at THB 25.50 on 2026-11-03.",
+    "action": "new",
+    "fields": {
+      "ref": "T104",
+      "trade_date": "2026-11-03",
+      "symbol": "SAMPLE_Z",
+      "side": "BUY",
+      "quantity": 100,
+      "price": "25.50",
+      "currency": "THB"
+    },
+    "tools": [
+      "prepare_new_trade"
+    ],
+    "status": "blocked"
+  }
+]
